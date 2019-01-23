@@ -905,6 +905,15 @@ public:
     return sms;
   }
 
+  bool checkUnreadMessage(bool changeStatusToRead = true){
+    sendAT(GF("+CMGL=\"REC UNREAD\","),  static_cast<const uint8_t>(!changeStatusToRead));
+    if (waitResponse(5000L, GF(GSM_NL "+CMGL: \"")) != 1) {
+      stream.readString();
+      return {};
+    }
+    return waitResponse() == 1;
+  }
+
   MessageStorage getPreferredMessageStorage() {
     sendAT(GF("+CPMS?")); // Preferred SMS Message Storage
     if (waitResponse(GF(GSM_NL "+CPMS:")) != 1) {

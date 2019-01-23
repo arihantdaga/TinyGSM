@@ -96,6 +96,7 @@ struct Sms {
   String phoneBookEntry;         // <alpha>
   String serviceCentreTimeStamp; // <scts>, format: yy/MM/dd,hh:mm:ss±zz; zz: time zone, quarter of an hour
   String message;                // <data>
+  uint8_t position;               // Index of the message in the memory
 };
 
 template<class T>
