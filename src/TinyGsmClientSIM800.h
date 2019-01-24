@@ -336,10 +336,10 @@ public:
     const SimStatus simStatus = getSimStatus();
     if (simStatus == SimStatus::SIM_READY)
     {
-      if (waitResponse(10000L, GF("SMS Ready")) != 1)
-      {
-        return false;
-      }
+      // if (waitResponse(10000L, GF("SMS Ready")) != 1)
+      // {
+      //   return false;
+      // }
 
       sendAT(GF("+CMGF=1")); // Select SMS Message Format: Text mode
       if (waitResponse() != 1)
@@ -895,6 +895,17 @@ public:
     {
       return hex;
     }
+  }
+
+  bool initSMS()
+  {
+    sendAT(GF("+CMGF=1"));
+    waitResponse();
+    sendAT(GF("+CPMS=\"SM\""));
+    waitResponse();
+    sendAT(GF("+CSAS"));
+    waitResponse();
+    return true;
   }
 
   bool sendSMS(const String &number, const String &text)
