@@ -75,6 +75,7 @@ struct PhonebookEntry
 struct PhonebookMatches
 {
   uint8_t index[TINY_GSM_PHONEBOOK_RESULTS] = {0};
+  int no_of_matches;
 };
 
 enum class MessageStorageType : uint8_t
@@ -905,6 +906,8 @@ public:
     waitResponse();
     sendAT(GF("+CSAS"));
     waitResponse();
+    sendAT(GF("+CSCS=\"GSM\""));
+    waitResponse();
     return true;
   }
 
@@ -1438,9 +1441,11 @@ public:
     }
 
     PhonebookMatches matches;
+    matches.no_of_matches = 0;
     for (uint8_t i = 0; i < TINY_GSM_PHONEBOOK_RESULTS; ++i)
     {
       matches.index[i] = static_cast<uint8_t>(stream.readStringUntil(',').toInt());
+      matches.no_of_matches++;
       if (waitResponse(GF(GSM_NL "+CPBF: ")) != 1)
       {
         break;
