@@ -28,6 +28,15 @@
 static const char GSM_OK[] TINY_GSM_PROGMEM = "OK" GSM_NL;
 static const char GSM_ERROR[] TINY_GSM_PROGMEM = "ERROR" GSM_NL;
 
+// New SMS Callback
+#if defined(ESP8266) || defined(ESP32)
+#include <functional>
+#define NEW_SMS_CALLBACK_SIGNATURE std::function<void(unsigned int)> callback
+#else
+#define NEW_SMS_CALLBACK_SIGNATURE void (*callback)(unsigned int)
+#endif
+
+
 enum SimStatus
 {
   SIM_ERROR = 0,
@@ -308,6 +317,8 @@ public:
 #ifndef TINY_GSM_NO_GPRS
     memset(sockets, 0, sizeof(sockets));
 #endif // TINY_GSM_NO_GPRS
+
+setNewSMSCallback(NULL);
   }
 
   /*
@@ -1078,7 +1089,7 @@ public:
     while (run_loop)
     {
 
-      if (waitResponse(5000L, GF(GSM_NL "+CMGL: ")) != 1)
+      if (waitResponse(5000L, GFP(GSM_OK), GFP(GSM_ERROR), GF(GSM_NL "+CMGL: ")) != 3)
       {
         stream.readString();
         break;
@@ -1190,6 +1201,10 @@ public:
 
     return ind;
   }
+  void setNewSMSCallback(NEW_SMS_CALLBACK_SIGNATURE){
+    sms_callback = callback;
+  }
+
 
   MessageStorage getPreferredMessageStorage()
   {
@@ -1711,7 +1726,19 @@ public:
         if (a <= 0)
           continue; // Skip 0x00 bytes, just in case
         data += (char)a;
-        if (r1 && data.endsWith(r1))
+        // Handling Automatic Updates first 
+        if(data.endsWith(GF(GSM_NL "+CMTI:"))){
+          String mem = stream.readStringUntil(',');
+          unsigned int index = stream.readStringUntil('\n').toInt();
+
+          DBG("New Message: " ,mem, index);
+          if(sms_callback!= NULL){
+            sms_callback(index);
+          }
+          data = "";
+        }
+
+        else if (r1 && data.endsWith(r1))
         {
           index = 1;
           goto finish;
@@ -1809,6 +1836,10 @@ protected:
     sendAT(GF("+CSCS=\""), alphabet, '"');
     return waitResponse() == 1;
   }
+
+  private:
+    std::function<void(unsigned int)> sms_callback;
 };
+
 
 #endif
