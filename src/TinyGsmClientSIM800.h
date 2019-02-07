@@ -359,11 +359,11 @@ setNewSMSCallback(NULL);
         return false;
       }
 
-      sendAT(GF("+CSDH=1")); // Show SMS Text Mode Parameters
-      if (waitResponse() != 1)
-      {
-        return false;
-      }
+      // sendAT(GF("+CSDH=1")); // Show SMS Text Mode Parameters
+      // if (waitResponse() != 1)
+      // {
+      //   return false;
+      // }
     }
 
     return true;
