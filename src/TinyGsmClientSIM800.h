@@ -486,6 +486,11 @@ setNewSMSCallback(NULL);
     return init();
   }
 
+  bool saveConfig(){
+    sendAT(GF("&W"));
+    return waitResponse() == 1;
+  }
+
   bool poweroff()
   {
     sendAT(GF("+CPOWD=1"));
@@ -911,11 +916,14 @@ setNewSMSCallback(NULL);
 
   bool initSMS()
   {
+    DEBUG_PORT.println("IM HEREEE, SEE THIS, INIT SMS");
     sendAT(GF("+CMGF=1"));
     waitResponse();
     sendAT(GF("+CPMS=\"SM\""));
     waitResponse();
     sendAT(GF("+CSCS=\"GSM\""));
+    waitResponse();
+    sendAT(GF("+CSCS?"));
     waitResponse();
     sendAT(GF("+CSAS"));
     waitResponse();
@@ -1177,20 +1185,23 @@ setNewSMSCallback(NULL);
       // <data>
       String data = stream.readStringUntil('\n');
       data.remove(static_cast<const unsigned int>(length));
-      switch (sms.alphabet)
-      {
-      case SmsAlphabet::GSM_7bit:
-        sms.message = data;
-        break;
-      case SmsAlphabet::Data_8bit:
-        sms.message = TinyGsmDecodeHex8bit(data);
-        break;
-      case SmsAlphabet::UCS2:
-        sms.message = TinyGsmDecodeHex16bit(data);
-        break;
-      case SmsAlphabet::Reserved:
-        break;
-      }
+      // switch (sms.alphabet)
+      // {
+      // case SmsAlphabet::GSM_7bit:
+      //   sms.message = data;
+      //   break;
+      // case SmsAlphabet::Data_8bit:
+      //   sms.message = TinyGsmDecodeHex8bit(data);
+      //   break;
+      // case SmsAlphabet::UCS2:
+      //   sms.message = TinyGsmDecodeHex16bit(data);
+      //   break;
+      // case SmsAlphabet::Reserved:
+      //   break;
+      // }
+      sms.message = data;
+      DEBUG_PORT.print("SMS message is ");
+      DEBUG_PORT.println(sms.message);
       sms_array[ind] = sms;
       ind++;
       if (limit && ind >= limit)
