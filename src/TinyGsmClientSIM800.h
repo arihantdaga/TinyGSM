@@ -918,15 +918,32 @@ setNewSMSCallback(NULL);
   {
     DEBUG_PORT.println("IM HEREEE, SEE THIS, INIT SMS");
     sendAT(GF("+CMGF=1"));
-    waitResponse();
+    if (waitResponse() != 1)
+    {
+      return false;
+    }
     sendAT(GF("+CPMS=\"SM\""));
-    waitResponse();
-    sendAT(GF("+CSCS=\"GSM\""));
-    waitResponse();
-    sendAT(GF("+CSCS?"));
-    waitResponse();
+    if (waitResponse() != 1)
+    {
+      return false;
+    }
     sendAT(GF("+CSAS"));
-    waitResponse();
+    if (waitResponse() != 1)
+    {
+      return false;
+    }
+    sendAT(GF("+CSCS=\"GSM\""));
+    if (waitResponse() != 1)
+    {
+      return false;
+    }
+    sendAT(GF("+CSDH=1")); // Show SMS Text Mode Parameters
+    if (waitResponse() != 1)
+    {
+      return false;
+    }
+
+
     return true;
   }
 
