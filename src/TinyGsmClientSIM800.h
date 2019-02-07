@@ -915,9 +915,9 @@ setNewSMSCallback(NULL);
     waitResponse();
     sendAT(GF("+CPMS=\"SM\""));
     waitResponse();
-    sendAT(GF("+CSAS"));
-    waitResponse();
     sendAT(GF("+CSCS=\"GSM\""));
+    waitResponse();
+    sendAT(GF("+CSAS"));
     waitResponse();
     return true;
   }
