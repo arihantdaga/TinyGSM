@@ -937,6 +937,7 @@ setNewSMSCallback(NULL);
       return false;
     }
 
+
     return true;
   }
 
