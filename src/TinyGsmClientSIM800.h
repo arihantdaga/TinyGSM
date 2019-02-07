@@ -912,13 +912,31 @@ setNewSMSCallback(NULL);
   bool initSMS()
   {
     sendAT(GF("+CMGF=1"));
-    waitResponse();
+    if (waitResponse() != 1)
+    {
+      return false;
+    }
     sendAT(GF("+CPMS=\"SM\""));
-    waitResponse();
+    if (waitResponse() != 1)
+    {
+      return false;
+    }
     sendAT(GF("+CSAS"));
-    waitResponse();
+    if (waitResponse() != 1)
+    {
+      return false;
+    }
     sendAT(GF("+CSCS=\"GSM\""));
-    waitResponse();
+    if (waitResponse() != 1)
+    {
+      return false;
+    }
+    sendAT(GF("+CSDH=1")); // Show SMS Text Mode Parameters
+    if (waitResponse() != 1)
+    {
+      return false;
+    }
+
     return true;
   }
 
