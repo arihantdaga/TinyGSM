@@ -916,7 +916,6 @@ setNewSMSCallback(NULL);
 
   bool initSMS()
   {
-    DEBUG_PORT.println("IM HEREEE, SEE THIS, INIT SMS");
     sendAT(GF("+CMGF=1"));
     if (waitResponse() != 1)
     {
@@ -942,7 +941,6 @@ setNewSMSCallback(NULL);
     {
       return false;
     }
-
 
     return true;
   }
@@ -1676,10 +1674,16 @@ protected:
       result = stream.readStringUntil('\n').toInt();
       waitResponse();
     }
-    if (!result)
+    // Due to a bug in SIM800, Sometimes result is positive, but its actually not connected. 
+    
+    /* if (!result)
     {
       sockets[mux]->sock_connected = modemGetConnected(mux);
-    }
+    } */
+    // So we'll change this block so as to always check for sock_connected. 
+    sockets[mux]->sock_connected = modemGetConnected(mux);
+
+
     return result;
   }
 
