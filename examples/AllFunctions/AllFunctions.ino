@@ -8,6 +8,8 @@
  * Just comment them out.
  *
  **************************************************************/
+  HardwareSerial NETWORK_PORT (PA3,PA2);
+  HardwareSerial DEBUG_PORT (PA10,PA9);
 
 // Select your modem:
 #define TINY_GSM_MODEM_SIM800
@@ -20,18 +22,18 @@
 // #define TINY_GSM_MODEM_M590
 
 // Set serial for debug console (to the Serial Monitor, speed 115200)
-#define SerialMon Serial
+#define SerialMon DEBUG_PORT
 
 // Set serial for AT commands (to the module)
 // Use Hardware Serial on Mega, Leonardo, Micro
-#define SerialAT Serial1
+#define SerialAT NETWORK_PORT
 
 // or Software Serial on Uno, Nano
 //#include <SoftwareSerial.h>
 //SoftwareSerial SerialAT(2, 3); // RX, TX
 
 
-//#define DUMP_AT_COMMANDS
+#define DUMP_AT_COMMANDS
 #define TINY_GSM_DEBUG SerialMon
 
 // Set phone numbers, if you want to test SMS and Calls
@@ -58,6 +60,7 @@ void setup() {
   // Set console baud rate
   SerialMon.begin(115200);
   delay(10);
+  turnOnModem();
 
   // Set your reset, enable, power pins here
 
@@ -65,6 +68,16 @@ void setup() {
 
   // Set GSM module baud rate
   TinyGsmAutoBaud(SerialAT);
+}
+
+void turnOnModem(){
+    pinMode(PA8, OUTPUT);
+    digitalWrite(PA8, HIGH); // Imidiately setting the pin back to high, to ensure that modeme doesnt turn off
+    digitalWrite(PA8, LOW);
+    delay(2000);
+    digitalWrite(PA8, HIGH);
+    delay(2000);
+
 }
 
 void loop() {

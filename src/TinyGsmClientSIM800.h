@@ -320,7 +320,7 @@ public:
 
 setNewSMSCallback(NULL);
   }
-
+  
   /*
    * Basic functions
    */
@@ -335,7 +335,10 @@ setNewSMSCallback(NULL);
     {
       return false;
     }
-
+    if(!preinit()){
+      return false;
+    }
+    
     sendAT(GF("&FZ")); // Factory + Reset
     waitResponse();
 
@@ -364,11 +367,31 @@ setNewSMSCallback(NULL);
       // {
       //   return false;
       // }
+    }else{
+      return false;
     }
 
     return true;
   }
+  // Certain things like network timestamps and CFUN needs to be set all the time, 
+  // which by default this library kept only in restart()
 
+  bool preinit(){
+    sendAT(GF("+CLTS=1"));
+    if (waitResponse(10000L) != 1)
+    {
+      return false;
+    }
+    sendAT(GF("&W"));
+    waitResponse();
+    sendAT(GF("+CFUN=1,1"));
+    if (waitResponse(10000L) != 1)
+    {
+      return false;
+    }
+    delay(3000);
+    return true;
+  }
   void setBaud(unsigned long baud)
   {
     sendAT(GF("+IPR="), baud);
