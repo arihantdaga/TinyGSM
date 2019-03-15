@@ -1134,8 +1134,14 @@ setNewSMSCallback(NULL);
 
     while (run_loop)
     {
-
-      if (waitResponse(5000L, GFP(GSM_OK), GFP(GSM_ERROR), GF(GSM_NL "+CMGL: ")) != 3)
+      // There is a certain bug( I am not sure, may be in the sim firmware. But due to which we sometimes get OK right after command and then we recieve messages.)
+      // So this is a jugaad to overcome that. 
+      uint8_t result = waitResponse(5000L, GFP(GSM_OK), GFP(GSM_ERROR), GF(GSM_NL "+CMGL: "));
+      if(result == 1){
+       
+        result = waitResponse(3000L, GFP(GSM_OK), GFP(GSM_ERROR), GF(GSM_NL "+CMGL: "));
+      }
+      if (result != 3)
       {
         stream.readString();
         break;
@@ -1498,7 +1504,7 @@ setNewSMSCallback(NULL);
     // AT response:
     // [+CPBF:<index1>,<number>,<type>,<text>]
     // [[...]<CR><LF>+CBPF:<index2>,<number>,<type>,<text>]
-    if (waitResponse(30000L, GF(GSM_NL "+CPBF: ")) != 1)
+    if (waitResponse(30000L, GF(GSM_NL "+CPBF: "),  GFP(GSM_OK)) != 1)
     {
       stream.readString();
       return {};
@@ -1510,11 +1516,17 @@ setNewSMSCallback(NULL);
     {
       matches.index[i] = static_cast<uint8_t>(stream.readStringUntil(',').toInt());
       matches.no_of_matches++;
-      if (waitResponse(GF(GSM_NL "+CPBF: ")) != 1)
+      streamSkipUntil('\n');
+      if (waitResponse( GF(GSM_NL "+CPBF: "), GFP(GSM_OK)) != 1)
       {
         break;
       }
     }
+    // if(matches.no_of_matches > 0){
+    //   // We have to read the last one. 
+    //   // DBG("I am trying to read the last one");
+    //   // streamSkipUntil('\n');
+    // }
 
     waitResponse();
 
