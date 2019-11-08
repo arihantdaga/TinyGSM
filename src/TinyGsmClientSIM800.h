@@ -181,6 +181,7 @@ public:
       sock_connected = false;
       at->waitResponse();
       rx.clear();
+      sock_available = 0;
     }
 
     virtual size_t write(const uint8_t *buf, size_t size)
@@ -340,7 +341,7 @@ setNewSMSCallback(NULL);
     }
     
     sendAT(GF("&FZ")); // Factory + Reset
-    waitResponse();
+    waitResponse(1000);
 
     sendAT(GF("E0")); // Echo Off
     if (waitResponse() != 1)
@@ -578,6 +579,9 @@ setNewSMSCallback(NULL);
 
   String getIMEI()
   {
+    // String res = "2233546ghn 5432";
+    // DBG("Sending wrong imei");
+    // return res;
     sendAT(GF("+GSN"));
     if (waitResponse(GF(GSM_NL)) != 1)
     {
@@ -1139,6 +1143,7 @@ setNewSMSCallback(NULL);
       uint8_t result = waitResponse(5000L, GFP(GSM_OK), GFP(GSM_ERROR), GF(GSM_NL "+CMGL: "));
       if(result == 1){
        
+        // I Know this is additional delay yet we have
         result = waitResponse(3000L, GFP(GSM_OK), GFP(GSM_ERROR), GF(GSM_NL "+CMGL: "));
       }
       if (result != 3)
@@ -1562,7 +1567,6 @@ setNewSMSCallback(NULL);
     }
 
     String res;
-
     switch (format)
     {
     case DATE_FULL:
@@ -1574,6 +1578,8 @@ setNewSMSCallback(NULL);
       break;
     case DATE_DATE:
       res = stream.readStringUntil(',');
+      break;
+    default:
       break;
     }
     return res;
@@ -1725,7 +1731,7 @@ protected:
   bool modemGetConnected(uint8_t mux)
   {
     sendAT(GF("+CIPSTATUS="), mux);
-    int res = waitResponse(GF(",\"CONNECTED\""), GF(",\"CLOSED\""), GF(",\"CLOSING\""), GF(",\"INITIAL\""));
+    int res = waitResponse(GF(",\"CONNECTED\""), GF(",\"CLOSED\""), GF(",\"CLOSING\""), GF(",\"REMOTE CLOSING\""), GF(",\"INITIAL\""));
     waitResponse();
     return 1 == res;
   }
