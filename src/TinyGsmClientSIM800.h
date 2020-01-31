@@ -336,12 +336,14 @@ setNewSMSCallback(NULL);
     {
       return false;
     }
+
+    sendAT(GF("&FZ")); // Factory + Reset
+    waitResponse(1000);
+
+    //MOVING PRE INIT DOWN TO SAVE FROM FZ 
     if(!preinit()){
       return false;
     }
-    
-    sendAT(GF("&FZ")); // Factory + Reset
-    waitResponse(1000);
 
     sendAT(GF("E0")); // Echo Off
     if (waitResponse() != 1)
